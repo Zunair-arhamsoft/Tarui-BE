@@ -3,7 +3,7 @@ const { Sequelize } = require('sequelize');
 
 
 let sequelize;
-const { dbName, dbUser, dbPass, dbHost, nodeEnv } = require('./vars');
+const { dbName, dbUser, dbPass, dbHost, nodeEnv, dbURL } = require('./vars');
 
 if (nodeEnv === 'production') {
     // Live DB
