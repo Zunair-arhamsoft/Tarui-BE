@@ -11,7 +11,7 @@ const Ledger = sequelize.define("Ledger", {
         allowNull: false,
     },
     description: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     },
 });

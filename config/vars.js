@@ -7,6 +7,6 @@ module.exports = {
     dbHost: process.env.DB_HOST,
     jwtSecret: process.env.JWT_SECRET,
     port: process.env.PORT,
-    dbURL: process.env.DB_URL,
+    dbURL: process.env.DATABASE_URL,
     nodeEnv: process.env.ENV || "development"
 }
