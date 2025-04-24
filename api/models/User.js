@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../../config/db');
 const bcrypt = require('bcrypt');
 
 const User = sequelize.define('User', {
@@ -13,6 +13,10 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
 });
+
+User.associate = (models) => {
+    User.hasMany(models.Ledger, { foreignKey: "userId" });
+};
 
 User.beforeCreate(async (user) => {
     user.password = await bcrypt.hash(user.password, 10);
