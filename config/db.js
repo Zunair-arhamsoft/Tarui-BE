@@ -1,21 +1,25 @@
+
 const { Sequelize } = require('sequelize');
-const { dbURL } = require('./vars');
-
-// Live DB
-// const sequelize = new Sequelize(dbURL, {
-//     dialect: 'postgres',
-//     dialectOptions: {
-//         ssl: { require: true, rejectUnauthorized: false }
-//     }
-// });
 
 
-// Local DB
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASS, {
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    logging: false,
-});
+let sequelize;
+const { dbName, dbUser, dbPass, dbHost, nodeEnv } = require('./vars');
 
+if (nodeEnv === 'production') {
+    // Live DB
+    sequelize = new Sequelize(dbURL, {
+        dialect: 'postgres',
+        dialectOptions: {
+            ssl: { require: true, rejectUnauthorized: false },
+        },
+    });
+} else {
+    // Local DB
+    sequelize = new Sequelize(dbName, dbUser, dbPass, {
+        host: dbHost,
+        dialect: 'postgres',
+        logging: false,
+    });
+}
 
 module.exports = sequelize;
