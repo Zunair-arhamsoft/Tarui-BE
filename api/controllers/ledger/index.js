@@ -1,15 +1,24 @@
+const { Op } = require("sequelize");
 const { Ledger, Transaction } = require("../../models");
 
 
 exports.getLedgers = async (req, res) => {
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 10, search } = req.query;
     const offset = (page - 1) * limit;
-
+    const whereClause = {
+        userId: req.user.id,
+        ...(search && {
+            name: {
+                [Op.iLike]: `%${search}%`,
+            },
+        }),
+    };
     try {
         const ledgers = await Ledger.findAndCountAll({
-            where: { userId: req.user.id },
+            where: whereClause,
             limit: parseInt(limit),
             offset: parseInt(offset),
+            order: [["createdAt", "DESC"]],
         });
 
         res.json({
