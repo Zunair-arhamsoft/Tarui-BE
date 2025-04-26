@@ -16,6 +16,7 @@ const User = sequelize.define('User', {
 
 User.associate = (models) => {
     User.hasMany(models.Ledger, { foreignKey: "userId" });
+    User.hasMany(models.Product, { foreignKey: "userId" });
 };
 
 User.beforeCreate(async (user) => {

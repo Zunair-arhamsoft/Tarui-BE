@@ -9,6 +9,7 @@ const Ledger = sequelize.define("Ledger", {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
+         unique: true,
     },
     description: {
         type: DataTypes.TEXT,
