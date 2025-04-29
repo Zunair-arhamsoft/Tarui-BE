@@ -56,7 +56,7 @@ exports.getProductDetails = async (req, res) => {
 // Create a new product
 exports.createProduct = async (req, res) => {
     try {
-        const { name, qty, description, price } = req.body;
+        const { name, qty, description } = req.body;
 
         if (!name || qty === undefined) {
             return res.status(400).json({ message: "Product name and qty are required" });
@@ -66,7 +66,7 @@ exports.createProduct = async (req, res) => {
             name,
             qty,
             description,
-            price,
+
             userId: req.user.id,
         });
 
@@ -80,7 +80,7 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, qty, description, price } = req.body;
+    const { name, qty, description, } = req.body;
 
     try {
         const product = await Product.findOne({
@@ -94,7 +94,6 @@ exports.updateProduct = async (req, res) => {
         await product.update({
             name: name ?? product.name,
             qty: qty ?? product.qty,
-            price: price ?? product.price,
             description: description ?? product.description,
         });
 
