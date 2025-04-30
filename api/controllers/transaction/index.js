@@ -54,8 +54,8 @@ exports.createTransaction = async (req, res) => {
             }
 
             // Balance logic
-            if (["Buy"].includes(type)) delta = -computedAmount;
-            if (["Sell", "Return", "Open Sell"].includes(type)) delta = computedAmount;
+            if (["Buy", "Return"].includes(type)) delta = -computedAmount;
+            if (["Sell", "Open Sell"].includes(type)) delta = computedAmount;
         }
 
         if (["Credit Amount", "Debit Amount"].includes(type)) {
