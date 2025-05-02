@@ -5,11 +5,12 @@ const Ledger = sequelize.define("Ledger", {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: 'user_ledger_unique_constraint',
     },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: 'user_ledger_unique_constraint',
     },
     description: {
         type: DataTypes.TEXT,
