@@ -5,7 +5,7 @@ const Product = sequelize.define('Product', {
     name: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: 'user_product_unique_constraint',
     },
     qty: {
         type: DataTypes.INTEGER,
@@ -18,6 +18,7 @@ const Product = sequelize.define('Product', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false,
+        unique: 'user_product_unique_constraint',
     },
 });
 
