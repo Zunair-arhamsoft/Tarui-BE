@@ -1,4 +1,4 @@
-const { Transaction, Product } = require("../../models");
+const { Transaction, Product, Ledger } = require("../../models");
 const { Op } = require("sequelize");
 
 exports.createTransaction = async (req, res) => {
@@ -44,7 +44,7 @@ exports.createTransaction = async (req, res) => {
                 if (["Buy", "Return"].includes(type)) {
                     dbProduct.qty += product.quantity;
                 } else if (["Sell", "Open Sell", "Breakage"].includes(type)) {
-                    if (dbProduct.quantity < product.quantity) {
+                    if (dbProduct.qty < product.quantity) {
                         return res.status(400).json({ message: `Insufficient quantity for product ${dbProduct.name}.`, success: false });
                     }
                     dbProduct.qty -= product.quantity;
@@ -131,5 +131,156 @@ exports.getTransactions = async (req, res) => {
         });
     } catch (err) {
         res.status(500).json({ message: "Server Error", error: err.message, success: false });
+    }
+};
+
+exports.createOpenSellTransaction = async (req, res) => {
+    try {
+        const { description, selectedProducts } = req.body;
+
+        if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
+            return res.status(400).json({
+                message: "SelectedProducts are required for Open Sell.",
+                success: false,
+            });
+        }
+        const ledger = await Ledger.findOne({
+            where: {
+                userId: req.user.id,
+                name: "Open Sell",
+            },
+        });
+
+        if (!ledger) {
+            return res.status(404).json({
+                message: "Open Sell ledger not found for this user.",
+                success: false,
+            });
+        }
+        const latestTransaction = await Transaction.findOne({
+            where: { ledgerId: ledger.id },
+            order: [["createdAt", "DESC"]],
+        });
+
+        let prevBalance = parseFloat(latestTransaction?.runningBalance || 0);
+        let computedAmount = selectedProducts.reduce(
+            (sum, p) => sum + (p.price * p.quantity),
+            0
+        );
+
+        for (const product of selectedProducts) {
+            if (product.quantity <= 0 || product.price < 0) {
+                return res.status(400).json({
+                    message: "Invalid price or quantity provided.",
+                    success: false,
+                });
+            }
+            const dbProduct = await Product.findByPk(product.id);
+
+            if (!dbProduct) {
+                return res.status(404).json({
+                    message: `Product with id ${product.id} not found.`,
+                    success: false,
+                });
+            }
+
+            if (dbProduct.qty < product.quantity) {
+                return res.status(400).json({
+                    message: `Insufficient quantity for product ${dbProduct.name}.`,
+                    success: false,
+                });
+            }
+
+            dbProduct.qty -= product.quantity;
+            await dbProduct.save();
+        }
+
+        const runningBalance = prevBalance + computedAmount;
+
+        const transaction = await Transaction.create({
+            userId: req.user.id,
+            ledgerId: ledger.id,
+            type: "Open Sell",
+            description,
+            amount: computedAmount,
+            runningBalance,
+            selectedProducts,
+        });
+
+        return res.status(201).json({
+            message: "Open Sell transaction created successfully.",
+            success: true,
+            data: transaction,
+        });
+    } catch (error) {
+        console.error("Error creating Open Sell transaction:", error);
+        return res.status(500).json({ message: "Internal server error.", success: false });
+    }
+};
+
+exports.createBreakageTransaction = async (req, res) => {
+    try {
+        const { description, selectedProducts } = req.body;
+
+        if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
+            return res.status(400).json({
+                message: "SelectedProducts are required for Breakage.",
+                success: false,
+            });
+        }
+
+        const ledger = await Ledger.findOne({
+            where: {
+                userId: req.user.id,
+                name: "Breakage",
+            },
+        });
+
+        if (!ledger) {
+            return res.status(404).json({
+                message: "Breakage ledger not found for this user.",
+                success: false,
+            });
+        }
+
+        for (const product of selectedProducts) {
+            const dbProduct = await Product.findByPk(product.id);
+
+            if (!dbProduct) {
+                return res.status(404).json({
+                    message: `Product ${product.name} with id ${product.id} not found.`,
+                    success: false,
+                });
+            }
+
+            if (dbProduct.qty < product.quantity) {
+                return res.status(400).json({
+                    message: `Insufficient quantity for product ${dbProduct.name}.`,
+                    success: false,
+                });
+            }
+
+            dbProduct.qty -= product.quantity;
+            await dbProduct.save();
+        }
+
+        const transaction = await Transaction.create({
+            userId: req.user?.id,
+            ledgerId: ledger.id,
+            type: "Breakage",
+            description,
+            amount: 0,
+            runningBalance: 0,
+            selectedProducts,
+        });
+
+        return res.status(201).json({
+            message: "Breakage transaction created successfully.",
+            success: true,
+            data: transaction,
+        });
+    } catch (error) {
+        console.error("Error creating Breakage transaction:", error);
+        return res.status(500).json({ message: "Internal server error.", success: false });
     }
 };

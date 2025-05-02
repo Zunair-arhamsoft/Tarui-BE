@@ -1,3 +1,4 @@
+const { Ledger } = require('../../models');
 const User = require('../../models/User');
 const jwt = require('jsonwebtoken');
 
@@ -15,6 +16,11 @@ const signup = async (req, res) => {
             email,
             password
         });
+
+        await Promise.all([
+            Ledger.create({ name: 'Breakage', userId: user.id, description: "Ledger for breakage" }),
+            Ledger.create({ name: 'Open Sell', userId: user.id, description: "Ledger for open sell" }),
+        ]);
 
         res.status(201).json({ message: 'User created successfully', userId: user.id });
     } catch (error) {
