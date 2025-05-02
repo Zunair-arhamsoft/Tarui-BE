@@ -93,21 +93,30 @@ exports.createTransaction = async (req, res) => {
 
 
 exports.getTransactions = async (req, res) => {
-    const { page = 1, limit = 10, search, id } = req.query;
+    const { page = 1, limit = 10, startDate, endDate, id } = req.query;
     const offset = (page - 1) * limit;
 
-    const whereClause = {
+    const where = {
         ledgerId: id,
-        ...(search && {
-            type: {
-                [Op.iLike]: `%${search}%`,
-            },
-        }),
     };
+
+    if (startDate && endDate) {
+        where.createdAt = {
+            [Op.between]: [new Date(startDate), new Date(endDate)],
+        };
+    } else if (startDate) {
+        where.createdAt = {
+            [Op.gte]: new Date(startDate),
+        };
+    } else if (endDate) {
+        where.createdAt = {
+            [Op.lte]: new Date(endDate),
+        };
+    }
 
     try {
         const transactions = await Transaction.findAndCountAll({
-            where: whereClause,
+            where: where,
             limit: parseInt(limit),
             offset: parseInt(offset),
             order: [["createdAt", "DESC"]],
