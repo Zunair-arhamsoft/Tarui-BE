@@ -9,6 +9,7 @@ exports.createTransaction = async (req, res) => {
             description,
             amount,
             selectedProducts,
+            paid
         } = req.body;
         if (!ledgerId || !type) {
             return res.status(400).json({ message: "ledgerId and type are required.", success: false });
@@ -26,9 +27,9 @@ exports.createTransaction = async (req, res) => {
         const calcProductTotal = () =>
             selectedProducts?.reduce((sum, p) => sum + (p.price * p.quantity), 0) || 0;
 
-        if (["Buy", "Sell", "Return", "Open Sell", "Breakage"].includes(type)) {
+        if (["Buy", "Sell", "Return"].includes(type)) {
             if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
-                return res.status(400).json({ message: `selectedProducts is required for type "${type}".`, success: false });
+                return res.status(400).json({ message: `Selected Products is required for type "${type}".`, success: false });
             }
 
             computedAmount = calcProductTotal();
@@ -43,7 +44,7 @@ exports.createTransaction = async (req, res) => {
                 // Quantity updates
                 if (["Buy", "Return"].includes(type)) {
                     dbProduct.qty += product.quantity;
-                } else if (["Sell", "Open Sell", "Breakage"].includes(type)) {
+                } else if (["Sell"].includes(type)) {
                     if (dbProduct.qty < product.quantity) {
                         return res.status(400).json({ message: `Insufficient quantity for product ${dbProduct.name}.`, success: false });
                     }
@@ -55,7 +56,11 @@ exports.createTransaction = async (req, res) => {
 
             // Balance logic
             if (["Buy", "Return"].includes(type)) delta = -computedAmount;
-            if (["Sell", "Open Sell"].includes(type)) delta = computedAmount;
+            if (["Sell"].includes(type)) delta = computedAmount;
+
+            if (paid) {
+                delta = 0;
+            }
         }
 
         if (["Credit Amount", "Debit Amount"].includes(type)) {
@@ -74,6 +79,7 @@ exports.createTransaction = async (req, res) => {
             userId: req.user?.id,
             ledgerId,
             type,
+            paid,
             description,
             amount: computedAmount,
             runningBalance,

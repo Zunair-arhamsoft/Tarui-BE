@@ -35,6 +35,10 @@ const Transaction = sequelize.define("Transaction", {
         allowNull: true,
         comment: "Cumulative balance after this transaction"
     },
+    paid: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+    },
     selectedProducts: {
         type: DataTypes.JSONB,
         allowNull: true,
