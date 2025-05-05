@@ -14,6 +14,7 @@ const Product = sequelize.define('Product', {
     description: {
         type: DataTypes.TEXT,
         allowNull: false,
+        unique: 'user_product_unique_constraint',
     },
     userId: {
         type: DataTypes.INTEGER,
