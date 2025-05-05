@@ -27,7 +27,7 @@ exports.createTransaction = async (req, res) => {
         const calcProductTotal = () =>
             selectedProducts?.reduce((sum, p) => sum + (p.price * p.quantity), 0) || 0;
 
-        if (["Buy", "Sell", "Return"].includes(type)) {
+        if (["Buy", "Sell", "Return-In", "Return-Out"].includes(type)) {
             if (!Array.isArray(selectedProducts) || selectedProducts.length === 0) {
                 return res.status(400).json({ message: `Selected Products is required for type "${type}".`, success: false });
             }
@@ -42,9 +42,9 @@ exports.createTransaction = async (req, res) => {
                 }
 
                 // Quantity updates
-                if (["Buy", "Return"].includes(type)) {
+                if (["Buy", "Return-In"].includes(type)) {
                     dbProduct.qty += product.quantity;
-                } else if (["Sell"].includes(type)) {
+                } else if (["Sell", "Return-Out"].includes(type)) {
                     if (dbProduct.qty < product.quantity) {
                         return res.status(400).json({ message: `Insufficient quantity for product ${dbProduct.name}.`, success: false });
                     }
@@ -55,11 +55,9 @@ exports.createTransaction = async (req, res) => {
             }
 
             // Balance logic
-            if (["Buy", "Return"].includes(type)) delta = -computedAmount;
-            if (["Sell"].includes(type)) delta = computedAmount;
-
-            if (paid) {
-                delta = 0;
+            if (!paid) {
+                if (["Buy", "Return-In"].includes(type)) delta = -computedAmount;
+                if (["Sell", "Return-Out"].includes(type)) delta = computedAmount;
             }
         }
 
@@ -96,7 +94,6 @@ exports.createTransaction = async (req, res) => {
         return res.status(500).json({ message: "Internal server error.", success: false });
     }
 };
-
 
 exports.getTransactions = async (req, res) => {
     const { page = 1, limit = 10, startDate, endDate, id } = req.query;

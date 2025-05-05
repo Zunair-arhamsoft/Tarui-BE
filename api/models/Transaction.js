@@ -15,7 +15,8 @@ const Transaction = sequelize.define("Transaction", {
             "Buy",
             "Sell",
             "Open Sell",
-            "Return",
+            "Return-In",
+            "Return-Out",
             "Breakage",
             "Credit Amount",
             "Debit Amount"
