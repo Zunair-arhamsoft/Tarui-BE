@@ -81,6 +81,7 @@ exports.createTransaction = async (req, res) => {
             description,
             amount: computedAmount,
             runningBalance,
+            prevBalance,
             selectedProducts: selectedProducts || [],
         });
 

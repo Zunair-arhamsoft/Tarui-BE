@@ -36,6 +36,11 @@ const Transaction = sequelize.define("Transaction", {
         allowNull: true,
         comment: "Cumulative balance after this transaction"
     },
+    prevBalance: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: "Cumulative balance before this transaction"
+    },
     paid: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
