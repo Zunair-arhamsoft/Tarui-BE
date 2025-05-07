@@ -18,6 +18,7 @@ User.associate = (models) => {
     User.hasMany(models.Ledger, { foreignKey: "userId" });
     User.hasMany(models.Product, { foreignKey: "userId" });
     User.hasMany(models.Transaction, { foreignKey: "userId" });
+    User.hasOne(models.BillSetting, { foreignKey: "userId" });
 };
 
 User.beforeCreate(async (user) => {

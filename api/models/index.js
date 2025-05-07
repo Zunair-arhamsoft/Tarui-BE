@@ -1,5 +1,6 @@
 
 const sequelize = require('../../config/db');
+const BillSetting = require('./BillSetting');
 const Ledger = require('./Ledger');
 const Product = require('./Product');
 const Transaction = require('./Transaction');
@@ -9,7 +10,8 @@ const models = {
     Ledger,
     Transaction,
     User,
-    Product
+    Product,
+    BillSetting
 };
 
 Object.keys(models).forEach((modelName) => {
