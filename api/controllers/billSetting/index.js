@@ -1,5 +1,5 @@
 
-const { BillSetting, User } = require("../../models");
+const { BillSetting } = require("../../models");
 
 exports.createSetting = async (req, res) => {
     try {
@@ -52,11 +52,10 @@ exports.fetchSetting = async (req, res) => {
     try {
         const setting = await BillSetting.findOne({
             where: { userId: req.user.id },
-            include: [{ model: User, attributes: ["id", "email"] }],
         });
 
         if (!setting) {
-            return res.status(404).json({ message: "Setting not found", success: false });
+            return res.status(200).json({ message: "Setting not found", success: true, data: null });
         }
 
         return res.status(200).json({ message: "Fetched successfully", success: true, data: setting });

@@ -8,7 +8,7 @@ const BillSetting = sequelize.define("BillSetting", {
         unique: true,
     },
     icon: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false,
     },
     name: {
