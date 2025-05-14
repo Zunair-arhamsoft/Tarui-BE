@@ -3,30 +3,30 @@ const { Product } = require("../../models");
 
 // Get all products with pagination and search
 exports.getProducts = async (req, res) => {
-    const { page = 1, limit = 10, search } = req.query;
-    const offset = (page - 1) * limit;
+    // const { page = 1, limit = 10, search } = req.query;
+    // const offset = (page - 1) * limit;
 
     const whereClause = {
         userId: req.user.id,
-        ...(search && {
-            name: {
-                [Op.iLike]: `%${search}%`,
-            },
-        }),
+        // ...(search && {
+        //     name: {
+        //         [Op.iLike]: `%${search}%`,
+        //     },
+        // }),
     };
 
     try {
         const products = await Product.findAndCountAll({
             where: whereClause,
-            limit: parseInt(limit),
-            offset: parseInt(offset),
+            // limit: parseInt(limit),
+            // offset: parseInt(offset),
             order: [["createdAt", "DESC"]],
         });
 
         res.json({
             total: products.count,
-            pages: Math.ceil(products.count / limit),
-            currentPage: parseInt(page),
+            // pages: Math.ceil(products.count / limit),
+            // currentPage: parseInt(page),
             data: products.rows,
         });
     } catch (err) {
