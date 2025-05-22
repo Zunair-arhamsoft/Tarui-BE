@@ -73,6 +73,15 @@ exports.createTransaction = async (req, res) => {
 
         const runningBalance = prevBalance + delta;
 
+        const [updatedCount] = await Ledger.update(
+            { latestBalance: runningBalance },
+            { where: { id: ledgerId } }
+        );
+
+        if (updatedCount === 0) {
+            return res.status(404).json({ message: "Ledger not found", success: false });
+        }
+
         const transaction = await Transaction.create({
             userId: req.user?.id,
             ledgerId,
