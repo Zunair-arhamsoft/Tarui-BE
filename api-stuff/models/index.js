@@ -1,5 +1,5 @@
 
-const sequelize = require('../../config/db');
+const sequelize = require("../../api/db");
 const BillSetting = require('./BillSetting');
 const Ledger = require('./Ledger');
 const Product = require('./Product');
