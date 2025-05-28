@@ -23,7 +23,7 @@ app.get('/', async (req, res) => {
     }
 });
 
-
+module.exports = app;
 // sequelize.sync().then(() => {
 //     console.log('Database connected!');
 //     app.listen(port, () => console.log(`Server running on port ${port}`));
