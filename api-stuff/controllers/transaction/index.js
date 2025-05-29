@@ -218,6 +218,7 @@ exports.createOpenSellTransaction = async (req, res) => {
             amount: computedAmount,
             runningBalance,
             selectedProducts,
+            paid: true
         });
 
         return res.status(201).json({
@@ -285,6 +286,7 @@ exports.createBreakageTransaction = async (req, res) => {
             amount: 0,
             runningBalance: 0,
             selectedProducts,
+            paid: true
         });
 
         return res.status(201).json({

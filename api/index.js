@@ -15,7 +15,7 @@ app.use('/api/', routes);
 app.get('/', async (req, res) => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync(); // Optionally only in development
+        await sequelize.sync();
         res.send('Database connected and Express is running on Vercel!');
     } catch (error) {
         console.error('Unable to connect to the database:', error);
@@ -23,8 +23,10 @@ app.get('/', async (req, res) => {
     }
 });
 
+sequelize.sync().then(() => {
+    console.log('Database connected!');
+    app.listen(port, () => console.log(`Server running on port ${port}`));
+});
+
+
 module.exports = app;
-// sequelize.sync().then(() => {
-//     console.log('Database connected!');
-//     app.listen(port, () => console.log(`Server running on port ${port}`));
-// });

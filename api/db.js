@@ -4,7 +4,8 @@ const { Sequelize } = require('sequelize');
 
 let sequelize;
 const { dbName, dbUser, dbPass, dbHost, nodeEnv, dbURL } = require('./vars');
-import pg from 'pg';
+// import pg from 'pg';
+const pg = require("pg")
 
 if (nodeEnv === 'production') {
     // Live DB
