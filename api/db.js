@@ -4,11 +4,14 @@ const { Sequelize } = require('sequelize');
 
 let sequelize;
 const { dbName, dbUser, dbPass, dbHost, nodeEnv, dbURL } = require('./vars');
+// import pg from 'pg';
+const pg = require("pg")
 
 if (nodeEnv === 'production') {
     // Live DB
     sequelize = new Sequelize(dbURL, {
         dialect: 'postgres',
+        dialectModule: pg,
         dialectOptions: {
             ssl: { require: true, rejectUnauthorized: false },
         },

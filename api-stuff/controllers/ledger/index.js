@@ -71,3 +71,51 @@ exports.createLedger = async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+exports.getLedgerTransactionsByDate = async (req, res) => {
+    const { id } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const whereClause = {
+        userId: req.user.id,
+        ledgerId: id,
+        ...(startDate && endDate && {
+            createdAt: {
+                [Op.between]: [new Date(startDate), new Date(endDate)],
+            },
+        }),
+        ...(startDate && !endDate && {
+            createdAt: {
+                [Op.gte]: new Date(startDate),
+            },
+        }),
+        ...(!startDate && endDate && {
+            createdAt: {
+                [Op.lte]: new Date(endDate),
+            },
+        }),
+    };
+
+    try {
+        const ledger = await Ledger.findOne({
+            where: { id, userId: req.user.id },
+        });
+
+        if (!ledger) {
+            return res.status(404).json({ message: "Ledger not found" });
+        }
+
+        const transactions = await Transaction.findAll({
+            where: whereClause,
+            order: [["createdAt", "DESC"]],
+        });
+
+        res.json({
+            ledgerId: id,
+            ledger,
+            transactions,
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
